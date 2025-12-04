@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hell Let Loose Self Propelled Guns Calculator</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#121212">
+<style>
+body {
+font-family: Arial, sans-serif;
+padding: 20px;
+max-width: 420px;
+margin: auto;
+background-color: #ffffff;
+color: #000000;
+transition: background-color 0.3s, color 0.3s;
+}
+
+input {
+width: 100%;
+padding: 10px;
+font-size: 16px;
+margin-bottom: 12px;
+}
+
+.label {
+font-weight: bold;
+margin-bottom: 4px;
+display: block;
+}
+
+.box {
+padding: 10px;
+background: #f3f3f3;
+border-radius: 6px;
+margin-top: 10px;
+transition: background 0.3s;
+}
+
+h2 {
+text-align: center;
+}
+
+h3 {
+text-align: center;
+font-size: 26px;
+margin-top: 20px;
+}
+
+.alert {
+color: red;
+font-weight: bold;
+text-align: center;
+animation: flash 1s infinite;
+margin-top: 10px;
+font-size: 20px;
+}
+
+@keyframes flash {
+0% { opacity: 1; }
+50% { opacity: 0; }
+100% { opacity: 1; }
+}
+
+body.dark-mode {
+background-color: #121212;
+color: #ffffff;
+}
+
+body.dark-mode .box {
+background: #1e1e1e;
+}
+
+button {
+width: 100%;
+padding: 10px;
+margin-top: 10px;
+font-size: 16px;
+cursor: pointer;
+}
+
+</style>
+</head>
+<body>
+
+<h2>Hell Let Loose Self Propelled Guns Calculator</h2>
+
+<button onclick="toggleDarkMode()">Toggle Dark Mode</button>
+
+<div class="label">Distance to Target (meters)</div>
+<input id="distance" type="number" placeholder="Enter meters" oninput="calc()">
+
+<div class="label">Pitch / Platform Angle (+ / -)</div>
+<input id="pitch" type="number" placeholder="Enter pitch" oninput="calc()">
+
+<div id="rangeWarning"></div>
+
+<div class="box">
+<div><strong>Pitch Correction Applied:</strong> <span id="correction">0</span></div>
+</div>
+
+<h3 id="result">Enter values...</h3>
+
+<script>
+// Dark Mode Toggle
+function toggleDarkMode() {
+document.body.classList.toggle('dark-mode');
+}
+
+// Calculator function
+function calc() {
+const d = Number(document.getElementById('distance').value);
+const pitch = Number(document.getElementById('pitch').value);
+const warningBox = document.getElementById('rangeWarning');
+
+// Reset warning text
+warningBox.innerHTML = "";
+
+// If no distance entered
+if (isNaN(d) || document.getElementById('distance').value === "") {
+document.getElementById('result').innerHTML = "Enter values...";
+document.getElementById('correction').innerHTML = "0";
+return;
+}
+
+// RANGE WARNINGS
+if (d > 600) {
+warningBox.innerHTML = "<div class='alert'>TARGET TOO FAR</div>";
+}
+if (d < 200) {
+warningBox.innerHTML = "<div class='alert'>TARGET TOO CLOSE</div>";
+}
+
+// PITCH correction (invert value)
+let pitchCorrection = 0;
+if (!isNaN(pitch) && document.getElementById('pitch').value !== "") {
+pitchCorrection = -pitch;
+}
+
+document.getElementById('correction').innerHTML = pitchCorrection;
+
+// Correct SPG formula
+const mils = (-0.666846 * d + 666.738384) + pitchCorrection;
+
+document.getElementById('result').innerHTML = mils.toFixed(2) + " mils";
+}
+
+// Register Service Worker for offline support
+if ('serviceWorker' in navigator) {
+navigator.serviceWorker.register('./sw.js')
+.then(() => console.log('Service Worker Registered'));
+}
+</script>
+
+</body>
+</html>
